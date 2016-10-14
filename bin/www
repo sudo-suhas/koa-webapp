@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 'use strict';
 
 /**
@@ -7,10 +8,10 @@
 const http = require('http');
 
 const app = require('src/app'),
-    substratum = require('src/substratum');
+    substratum = require('src/substratum'),
+    dao = require('src/dao');
 
-const {redisClient, db, logger} = substratum,
-    {accountDbClient, logDbClient} = db;
+const { redisClient, logger } = substratum;
 
 /**
  * Get port from environment and store in Koa.
@@ -31,7 +32,7 @@ server.on('listening', onListening);
 
 let shuttingDown = false;
 
-['SIGINT', 'SIGTERM'].forEach((signal) => {
+['SIGINT', 'SIGTERM'].forEach(signal => {
     process.on(signal, shutdown);
 });
 
@@ -65,9 +66,9 @@ function onError(error) {
         throw error;
     }
 
-    const bind = typeof port === 'string'
-        ? `Pipe ${port}`
-        : `Port ${port}`;
+    const bind = typeof port === 'string' ?
+        `Pipe ${port}` :
+        `Port ${port}`;
 
     // handle specific listen errors with friendly messages
     switch (error.code) {
@@ -89,9 +90,9 @@ function onError(error) {
  */
 function onListening() {
     const addr = server.address();
-    const bind = typeof addr === 'string'
-        ? `pipe ${addr}`
-        : `port ${addr.port}`;
+    const bind = typeof addr === 'string' ?
+        `pipe ${addr}` :
+        `port ${addr.port}`;
     logger.info(`Listening on ${bind}`);
 }
 
@@ -104,8 +105,7 @@ function shutdown() {
         shuttingDown = true;
 
         server.close();
-        accountDbClient.close();
-        logDbClient.close();
+        dao.close();
         redisClient.close();
 
         setTimeout(() => {

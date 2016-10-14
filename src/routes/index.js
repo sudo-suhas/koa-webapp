@@ -2,9 +2,11 @@
 
 const debug = require('debug')('webapp:routes');
 
+const router = require('koa-router')();
+
 const setupUserRoutes = require('./user');
 
-module.exports = function setupRoutes(app, passport, router) {
+module.exports = function setupRoutes(app, passport) {
     debug('Setting up application routes');
 
     // Register GET/POST, login GET/POST do not need authentication

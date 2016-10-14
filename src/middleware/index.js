@@ -13,12 +13,14 @@ const session = require('koa-generic-session'), // https://github.com/koajs/gene
     bunyanLogger = require('koa-bunyan-logger'),
     helmet = require('koa-helmet');
 
-const config = require('./config'),
-    setupAuth = require('./auth');
+const config = require('../config'),
+    setupAuth = require('../auth'),
+    userauth = require('./userauth'),
+    koaStylus = require('./koa_stylus');
 
-module.exports = function setupMiddleware(app, passport, logger) {
+exports.setupMiddleware = function setupMiddleware(app, passport, logger) {
     debug('Setting up helper middleware');
-    app.context.dao = require('./dao');
+    app.context.dao = require('../dao');
     app.context.logger = logger;
 
     // TODO: Pass appropriate options to onerror
@@ -32,8 +34,9 @@ module.exports = function setupMiddleware(app, passport, logger) {
     // https://www.npmjs.com/package/xss-filters
     app.use(helmet());
 
-    const { appRoot } = global;
-    app.use(serve(path.join(appRoot, 'public')));
+    const { appRoot } = global, publicRoot = path.join(appRoot, 'public');
+    app.use(koaStylus(publicRoot));
+    app.use(serve(publicRoot));
 
     app.use(bunyanLogger(logger));
     app.use(bunyanLogger.requestIdContext());
@@ -54,12 +57,7 @@ module.exports = function setupMiddleware(app, passport, logger) {
 
     // try to use https://github.com/koajs/userauth here?
     // Require authentication for now
-    // app.use((ctx, next) => {
-    //     if (ctx.isAuthenticated()) {
-    //         return next();
-    //     }
-    //     ctx.redirect('/');
-    // });
+    app.use(userauth);
 
     debug('Pug config %j', config.pug);
     app.use(views(path.join(appRoot, 'views'), {
@@ -67,3 +65,5 @@ module.exports = function setupMiddleware(app, passport, logger) {
         options: config.pug
     }));
 };
+
+// Setup joi validation midleware

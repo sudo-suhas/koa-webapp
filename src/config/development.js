@@ -1,6 +1,5 @@
 'use strict';
-const fs = require('fs'),
-    path = require('path');
+const path = require('path');
 
 const bunyan = require('bunyan'),
     redisStore = require('koa-redis'); // https://github.com/koajs/koa-redis
@@ -9,21 +8,8 @@ const loadHelpers = require('../substratum/load_helpers');
 
 const config = {};
 
-const {appRoot} = global,
-    logDir = path.join(appRoot, 'logs'),
+const { appRoot } = global, logDir = path.join(appRoot, 'logs'),
     pugDir = path.join(appRoot, 'src', 'pug');
-
-/**
- * make a log directory, just in case it isn't there.
- */
-try {
-    if (!fs.existsSync(logDir)) {
-        fs.mkdirSync(logDir);
-    }
-} catch (err) {
-    console.error('Could not set up log directory, error was: ', err);
-    process.exit(1);
-}
 
 config.logger = {
     name: 'webapp',
@@ -34,8 +20,8 @@ config.logger = {
         type: 'rotating-file',
         path: path.join(logDir, 'webapp.log'),
         level: 'info',
-        period: '1d',   // daily rotation
-        count: 3        // keep 3 back copies
+        period: '1d', // daily rotation
+        count: 3 // keep 3 back copies
     }],
     // WARNING: Determining the call source info is slow. Never use this option in production.
     src: true,
@@ -49,17 +35,24 @@ config.pug = {
     cache: false,
     basedir: path.join(appRoot, 'views'),
     globals: [
-        {_: require('lodash')},
+        { _: require('lodash') },
         loadHelpers(path.join(pugDir, 'helpers'))
     ]
 };
 
-config.accountDb = {
-    host: 'localhost',
-    user: 'myuser',
-    password: 'mypass',
-    database: 'my_db',
-    timezone: 'utc'
+config.knexReader = {
+    client: 'mysql2',
+    connection: {
+        host: 'localhost',
+        user: 'myuser',
+        password: 'mypass',
+        database: 'my_db',
+        timezone: 'utc',
+        charset: 'utf8'
+    },
+    debug: true,
+    pool: { min: 2, max: 10 },
+    acquireConnectionTimeout: 10000
 };
 
 config.logDb = {
@@ -67,13 +60,14 @@ config.logDb = {
     user: 'myuser',
     password: 'mypass',
     database: 'my_db',
-    timezone: 'utc'
+    timezone: 'utc',
+    charset: 'utf8'
 };
 
 const redisConfig = config.redis = {
     host: '127.0.0.1',
     port: 6379
-    // Specify db, password
+        // Specify db, password
 };
 
 // echo "$(< /dev/urandom tr -dc A-Za-z0-9 | head -c 32)"
@@ -92,11 +86,6 @@ config.session = {
         httpOnly: true,
         signed: true
     }
-};
-
-config.joiOptions = {
-    abortEarly: false,
-    convert: true
 };
 
 module.exports = config;

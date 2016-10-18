@@ -1,4 +1,7 @@
 'use strict';
+
+const debug = require('debug')('webapp:config');
+
 const fs = require('fs'),
     path = require('path');
 
@@ -9,6 +12,7 @@ const logDir = path.join(global.appRoot, 'logs');
  */
 try {
     if (!fs.existsSync(logDir)) {
+        debug('Creating log directory %s', logDir);
         fs.mkdirSync(logDir);
     }
 } catch (err) {
@@ -17,6 +21,7 @@ try {
 }
 
 const nodeEnv = process.env.NODE_ENV;
+debug('Node enviroment - %s', nodeEnv);
 let config;
 switch (nodeEnv) {
 
@@ -32,6 +37,8 @@ switch (nodeEnv) {
         config = require('./development');
 
 }
+
+config.env = nodeEnv;
 
 config.joiOptions = {
     abortEarly: false,

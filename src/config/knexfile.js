@@ -1,5 +1,9 @@
 'use strict';
 
+const path = require('path');
+
+const knexDir = path.resolve(__dirname, '..', '.knex');
+
 module.exports = {
 
     development: {
@@ -16,11 +20,11 @@ module.exports = {
         pool: { min: 2, max: 5 },
         acquireConnectionTimeout: 10000,
         migrations: {
-            directory: 'src/.knex/migrations',
+            directory: path.join(knexDir, 'migrations'),
             tableName: 'knex_migrations'
         },
         seeds: {
-            directory: 'src/.knex/seeds/dev'
+            directory: path.join(knexDir, 'seeds', 'dev')
         }
     }
 

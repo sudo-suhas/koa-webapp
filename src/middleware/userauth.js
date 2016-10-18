@@ -13,10 +13,10 @@ module.exports = async function userauth(ctx, next) {
     if (authRegex.test(ctx.path)) {
         debug('Path requires authentication');
         if (ctx.isAuthenticated()) {
-            return next();
+            return await next();
         }
         return ctx.redirect('/login');
     }
     debug('Path does not require authentication');
-    return next();
+    return await next();
 };

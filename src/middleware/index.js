@@ -4,49 +4,67 @@ const path = require('path');
 
 const debug = require('debug')('webapp:middleware');
 
-const session = require('koa-generic-session'), // https://github.com/koajs/generic-session
+const redis = require('redis'),
+    session = require('koa-generic-session'), // https://github.com/koajs/generic-session
+    favicon = require('koa-favicon'),
+    compress = require('koa-compress'),
+    stylus = require('koa-stylus'),
     serve = require('koa-static'),
     convert = require('koa-convert'),
+    CSRF = require('koa-csrf').default,
+    ratelimit = require('koa-ratelimit'),
     views = require('koa-views'),
     onerror = require('koa-onerror'),
     bodyParser = require('koa-bodyparser'),
     bunyanLogger = require('koa-bunyan-logger'),
     helmet = require('koa-helmet');
 
-const config = require('../config'),
-    setupAuth = require('../auth'),
+const responseTime = require('./response_time'),
     userauth = require('./userauth'),
-    koaStylus = require('./koa_stylus');
+    config = require('../config'),
+    setupAuth = require('../auth');
 
 exports.setupMiddleware = function setupMiddleware(app, passport, logger) {
     debug('Setting up helper middleware');
     app.context.dao = require('../dao');
     app.context.logger = logger;
+    app.context.env = config.env;
 
     // TODO: Pass appropriate options to onerror
     onerror(app);
 
+    app.use(responseTime());
+
+    const ratelimitConfig = config.ratelimit;
+    debug('Ratelimit config %j', ratelimitConfig);
+    // redis needs to be managed so that it can be shutdown
+    ratelimitConfig.db = redis.createClient(ratelimitConfig.redis);
+    app.use(convert(ratelimit(ratelimitConfig)));
+
     // Configure security carefully
-    // https://github.com/krakenjs/lusca/issues/42
-    // https://nodesecurity.io/opensource
-    // https://blog.liftsecurity.io/2015/01/21/tooling
-    // https://github.com/koajs/koa-lusca
-    // https://www.npmjs.com/package/xss-filters
-    app.use(helmet());
+    app.use(helmet(config.helmet));
+
+    app.use(compress());
 
     const { appRoot } = global, publicRoot = path.join(appRoot, 'public');
-    app.use(koaStylus(publicRoot));
+    // TODO: Doesn't work in firefox. Check why
+    app.use(favicon(path.join(publicRoot, 'favicon.ico')));
+    app.use(convert(stylus(publicRoot)));
     app.use(serve(publicRoot));
 
     app.use(bunyanLogger(logger));
     app.use(bunyanLogger.requestIdContext());
     app.use(bunyanLogger.requestLogger());
 
-    app.use(bodyParser());
+    app.use(bodyParser({
+        limit: '1mb'
+    }));
 
     app.keys = config.appKeys;
     debug('Session config %j', config.session);
     app.use(convert(session(config.session)));
+
+    app.use(new CSRF());
 
     // Setup flash
     // https://github.com/theverything/koa-connect-flash

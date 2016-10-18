@@ -110,6 +110,6 @@ function shutdown() {
 
         setTimeout(() => {
             process.exit();
-        }, 10e3).unref();
+        }, 5e3).unref();
     }
 }

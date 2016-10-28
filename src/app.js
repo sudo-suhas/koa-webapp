@@ -1,8 +1,4 @@
 'use strict';
-require('babel-register')({
-    plugins: ['transform-async-to-generator']
-});
-
 const debug = require('debug')('webapp:app');
 
 const path = require('path');
@@ -24,8 +20,7 @@ setupRoutes(app, passport);
 
 // log error
 app.on('error', (err, ctx) => {
-    // logger.error(err);
-    logger.error('server error', err, ctx);
+    logger.error('Server error: ', err, ctx);
 });
 
 module.exports = app;

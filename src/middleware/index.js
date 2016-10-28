@@ -47,7 +47,6 @@ exports.setupMiddleware = function setupMiddleware(app, passport, logger) {
     app.use(compress());
 
     const { appRoot } = global, publicRoot = path.join(appRoot, 'public');
-    // TODO: Doesn't work in firefox. Check why
     app.use(favicon(path.join(publicRoot, 'favicon.ico')));
     app.use(convert(stylus(publicRoot)));
     app.use(serve(publicRoot));

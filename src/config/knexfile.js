@@ -16,7 +16,7 @@ module.exports = {
             timezone: 'utc',
             charset: 'utf8'
         },
-        debug: true,
+        debug: false,
         pool: { min: 2, max: 5 },
         acquireConnectionTimeout: 10000,
         migrations: {

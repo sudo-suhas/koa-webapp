@@ -87,7 +87,7 @@ config.knexReader = {
         timezone: 'utc',
         charset: 'utf8'
     },
-    debug: true,
+    debug: false,
     pool: { min: 2, max: 10 },
     acquireConnectionTimeout: 10000
 };
@@ -122,13 +122,14 @@ config.helmet = {
             scriptSrc: ["'self'"],
             // This is the policy for controlling the valid sources of stylesheets.
             // Using the 'unsafe-inline' keyword to allows inline stylesheets
-            styleSrc: ["'self'"],
+            styleSrc: ["'self'", 'cdnjs.cloudflare.com'],
             // This is the policy for controlling the valid sources of images.
-            imgSrc: ["'self'"],
+            imgSrc: ["'self'", 'data:'],
             // limits the origins to which you can connect (via XHR, WebSockets, and EventSource)
             connectSrc: ["'self'"],
             // This is the policy for controlling the valid sources of plugins like <object>, <embed>, or <applet>.
-            objectSrc: [], // An empty array allows nothing through
+            // 'none' will disallow plugins (objects, embeds, etc.)
+            objectSrc: ["'none'"], // An empty array allows nothing through
             // specifies the origins that can serve web fonts.
             fontSrc: ["'self'", 'https://themes.googleusercontent.com'],
             // This is the policy for controlling the valid sources of HTML5 media types like <audio> or <video>.
@@ -144,9 +145,10 @@ config.helmet = {
             // The sandbox applies a same origin policy, prevents popups, plugins and script execution is blocked.
             sandbox: ['allow-forms', 'allow-same-origin', 'allow-top-navigation', 'allow-scripts', 'allow-popups'],
             // Defines valid sources for embedding the resource using <frame> <iframe> <object> <embed> <applet>
-            frameAncestors: ["'none'"],
-            // Defines valid MIME types for plugins invoked via <object> and <embed>.
-            pluginTypes: ["'none'"]
+            frameAncestors: ["'none'"] // ,
+                // Defines valid MIME types for plugins invoked via <object> and <embed>.
+                // Controlled through objectSrc. Only intended to be used if some plugins allowed with object-src
+                // pluginTypes: []
 
         },
 

@@ -5,6 +5,9 @@
 /**
  * Module dependencies.
  */
+require('babel-register')({
+    plugins: ['transform-async-to-generator']
+});
 const http = require('http');
 
 const app = require('src/app'),

@@ -12,6 +12,12 @@ const {
     }
 } = require('../resources');
 
+const {
+    loginSchema
+} = require('../schemas');
+
+const { validate } = require('../middleware');
+
 module.exports = function setupUserRoutes(passport, router) {
     debug('Setting up user routes');
     //
@@ -25,6 +31,6 @@ module.exports = function setupUserRoutes(passport, router) {
     router.get('/login', loginView);
     // Is it possible to chain get and post for given route?
     // Read this - http://stackoverflow.com/questions/15711127/express-passport-node-js-error-handling
-    router.post('/login', login(passport));
+    router.post('/login', validate(loginSchema), login(passport));
     router.get('/logout', logout);
 };

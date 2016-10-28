@@ -8,19 +8,25 @@ const bcrypt = Promise.promisifyAll(require('bcrypt'));
 
 const { reader, writer } = require('./acc_db_client');
 
+const USER_COLUMNS_INTERNAL = ['username', 'password', 'name'],
+    USER_COLUMNS = ['username', 'name'];
+
 /**
  * @param {string} username
- * @returns {{username: string, password: string, name: string}}
+ * @param {Array} columns
+ * @returns {{username: string, name: string}}
  */
-async function getByUserNameInternal(username) {
-    // Use different account for reading and writing to database?
+async function getUser(username, columns) {
     debug('Getting user details for username %s', username);
-    return await reader.select('username', 'password', 'name').from('users').where({ username });
+    const userArr = await reader.select(columns).from('users').where({ username });
+    if (userArr.length > 0) {
+        return userArr[0];
+    }
+    return null;
 }
 
 exports.getByUserName = async function getByUserName(username) {
-    debug('Getting user details for username %s', username);
-    return await reader.select('username', 'name').from('users').where({ username });
+    return await getUser(username, USER_COLUMNS);
 };
 
 exports.verifyCredentials = async function verifyCredentials(username, password) {
@@ -28,7 +34,8 @@ exports.verifyCredentials = async function verifyCredentials(username, password)
 
     let valid = false,
         message = 'Incorrect username or password';
-    const user = await getByUserNameInternal(username);
+    const user = await getUser(username, USER_COLUMNS_INTERNAL);
+    debug('User %j', user);
     if (user == null) {
         debug('User not found for username %s', username);
         return { valid, message };

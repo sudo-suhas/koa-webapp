@@ -22,7 +22,8 @@ const redis = require('redis'),
 const responseTime = require('./response_time'),
     userauth = require('./userauth'),
     config = require('../config'),
-    setupAuth = require('../auth');
+    setupAuth = require('../auth'),
+    validate = require('./validate');
 
 exports.setupMiddleware = function setupMiddleware(app, passport, logger) {
     debug('Setting up helper middleware');
@@ -83,4 +84,5 @@ exports.setupMiddleware = function setupMiddleware(app, passport, logger) {
     }));
 };
 
-// Setup joi validation midleware
+// joi validation midleware
+exports.validate = validate;

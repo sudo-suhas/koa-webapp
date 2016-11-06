@@ -11,7 +11,7 @@ const debug = require('debug')('webapp:middleware:response_time');
 module.exports = function responseTime({ timer = Date, headerName = 'X-Response-Time' } = {}) {
     return async function responseTimeMiddleware(ctx, next) {
         const start = timer.now();
-        await next(); // eslint-disable-line
+        await next();
         const delta = timer.now() - start;
         ctx.set(headerName, delta);
         debug('Time taken for response - %s ms', delta);

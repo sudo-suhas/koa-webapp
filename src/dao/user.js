@@ -8,7 +8,7 @@ const bcrypt = Promise.promisifyAll(require('bcrypt'));
 
 const { reader, writer } = require('./acc_db_client');
 
-const USER_COLUMNS_INTERNAL = ['username', 'password', 'name'],
+const _USER_COLUMNS = ['username', 'password', 'name'],
     USER_COLUMNS = ['username', 'name'];
 
 /**
@@ -16,17 +16,32 @@ const USER_COLUMNS_INTERNAL = ['username', 'password', 'name'],
  * @param {Array} columns
  * @returns {{username: string, name: string}}
  */
-async function getUser(username, columns) {
+async function _getUser(username, columns) {
     debug('Getting user details for username %s', username);
-    const userArr = await reader.select(columns).from('users').where({ username });
-    if (userArr.length > 0) {
+    let userArr;
+    let tries = 0;
+    // eslint-disable-next-line
+    while (tries < 3) {
+        try {
+            userArr = await reader.select(columns).from('users').where({ username });
+            break;
+        } catch (err) {
+            tries++;
+            if (tries >= 3) {
+                throw err;
+            }
+            debug(err);
+        }
+    }
+
+    if (userArr && userArr.length > 0) {
         return userArr[0];
     }
     return null;
 }
 
 exports.getByUserName = async function getByUserName(username) {
-    return await getUser(username, USER_COLUMNS);
+    return await _getUser(username, USER_COLUMNS);
 };
 
 exports.verifyCredentials = async function verifyCredentials(username, password) {
@@ -34,7 +49,7 @@ exports.verifyCredentials = async function verifyCredentials(username, password)
 
     let valid = false,
         message = 'Incorrect username or password';
-    const user = await getUser(username, USER_COLUMNS_INTERNAL);
+    const user = await _getUser(username, _USER_COLUMNS);
     debug('User %j', user);
     if (user == null) {
         debug('User not found for username %s', username);
@@ -57,7 +72,8 @@ exports.createUser = async function createUser(username, password, name) {
     debug('Creating user account for %s with username %s and password %s', name, username, password);
     // Check and throw for username already exists?
     const salt = await bcrypt.genSaltAsync(10);
-    const hash = await bcrypt.hashAsync(username, salt);
+    const hash = await bcrypt.hashAsync(password, salt);
+    debug('Password hash - %s', hash);
     const user = { username, password: hash, name };
     await writer('users').insert(user);
     Reflect.deleteProperty(user, password);

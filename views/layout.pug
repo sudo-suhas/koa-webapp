@@ -1,11 +1,21 @@
 doctype html
-html
+html(lang='en')
     head
-        title Node.js Login
-        link(rel='stylesheet', href='/vendor/bootstrap.min.css')
-        link(rel='stylesheet', href='/css/style.css')
-        link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.min.css')
+        meta(charset='UTF-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+        //- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags
+        meta(name='description', content='Demo webapp written using koa with focus on security and extensibility.')
+        meta(name='author', content='Suhas Karanth')
+        title= title
+        block styles
+            link(rel='stylesheet', href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+            link(rel='stylesheet', href='/css/style.css')
+            link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.min.css')
     body
 
         block content
+
         block scripts
+            script(src='//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js')
+            script(src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')

@@ -1,65 +1,26 @@
 $(document).ready(function() {
+    // Setup parsley
+    $('#form-login').parsley();
 
-    var lv = new LoginValidator();
-    var lc = new LoginController();
+    var notifier = new Notifier();
 
-    // main login form //
-
-    $('#login').ajaxForm({
-        beforeSubmit: function(formData, jqForm, options) {
-            // TODO: Fix eslint issues
-            // eslint-disable-next-line
-            if (lv.validateForm() == false) {
-                return false;
-            }
-            // append 'remember-me' option to formData to write local cookie //
-            formData.push({
-                name: 'remember-me',
-                value: $('.button-rememember-me-glyph').hasClass('glyphicon-ok')
-            });
-            return true;
-
-        },
-        success: function(responseText, status, xhr, $form) {
-            if (status === 'success') {
-                window.location.href = '/home';
-            }
-        },
-        error: function(e) {
-            lv.showLoginError('Login Failure', 'Please check your username and/or password');
-        }
-    });
-    $('#user-tf').focus();
-
-    // login retrieval form via email //
-
-    var ev = new EmailValidator();
-
-    $('#get-credentials-form').ajaxForm({
-        url: '/lost-password',
-        beforeSubmit: function(formData, jqForm, options) {
-            if (ev.validateEmail($('#email-tf').val())) {
-                ev.hideEmailAlert();
-                return true;
-            }
-            ev.showEmailAlert('<b>Error!</b> Please enter a valid email address');
-            return false;
-
-        },
-        success: function(responseText, status, xhr, $form) {
-            $('#cancel').html('OK');
-            $('#retrieve-password-submit').hide();
-            ev.showEmailSuccess('Check your email on how to reset your password.');
-        },
-        error: function(e) {
-            if (e.responseText === 'email-not-found') {
-                ev.showEmailAlert('Email not found. Are you sure you entered it correctly?');
+    function postCallback(err, data, status, jqXHR) {
+        console.log(err, data, status, jqXHR);
+        if (err || data.success === false) {
+            console.log('OH MAI GAD!!');
+            if (data.error === true) {
+                // Do something with field level error info.
+                // Use parsley? http://parsleyjs.org/doc/index.html
             } else {
-                $('#cancel').html('OK');
-                $('#retrieve-password-submit').hide();
-                ev.showEmailAlert('Sorry. There was a problem, please try again later.');
+                notifier.showMessage('Login Failed!', data.message);
             }
+            return;
         }
-    });
+        // Response should have the redirect url
+        window.location.href = data.response.redirectUrl;
+    }
+
+    // Setup form submit using ajax post
+    postOffice('btn-login', 'form-login', '/login', postCallback);
 
 });

@@ -88,7 +88,12 @@ config.knexReader = {
         charset: 'utf8'
     },
     debug: false,
-    pool: { min: 2, max: 10 },
+    pool: {
+        min: 2,
+        max: 10,
+        testOnBorrow: true,
+        Promise: require('bluebird')
+    },
     acquireConnectionTimeout: 10000
 };
 
@@ -119,10 +124,10 @@ config.helmet = {
             // Whatever is defined here applies to all the other type unless you set them to 'none'
             defaultSrc: ["'none'"],
             // This is the policy for controlling the valid sources of JavaScript.
-            scriptSrc: ["'self'"],
+            scriptSrc: ["'self'", 'ajax.googleapis.com', 'maxcdn.bootstrapcdn.com'],
             // This is the policy for controlling the valid sources of stylesheets.
             // Using the 'unsafe-inline' keyword to allows inline stylesheets
-            styleSrc: ["'self'", 'cdnjs.cloudflare.com'],
+            styleSrc: ["'self'", 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com'],
             // This is the policy for controlling the valid sources of images.
             imgSrc: ["'self'", 'data:'],
             // limits the origins to which you can connect (via XHR, WebSockets, and EventSource)
@@ -131,7 +136,7 @@ config.helmet = {
             // 'none' will disallow plugins (objects, embeds, etc.)
             objectSrc: ["'none'"], // An empty array allows nothing through
             // specifies the origins that can serve web fonts.
-            fontSrc: ["'self'", 'https://themes.googleusercontent.com'],
+            fontSrc: ["'self'", 'https://themes.googleusercontent.com', 'maxcdn.bootstrapcdn.com'],
             // This is the policy for controlling the valid sources of HTML5 media types like <audio> or <video>.
             mediaSrc: [],
             // lists the URLs for workers and embedded frame contents
@@ -200,6 +205,11 @@ config.logDb = {
     database: 'my_db',
     timezone: 'utc',
     charset: 'utf8'
+};
+
+config.joiOptions = {
+    abortEarly: false,
+    convert: true
 };
 
 module.exports = config;

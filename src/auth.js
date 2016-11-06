@@ -5,25 +5,24 @@ const debug = require('debug')('webapp:auth');
 const LocalStrategy = require('passport-local').Strategy;
 
 module.exports = function setupAuth(app, passport) {
+    // http://toon.io/understanding-passportjs-authentication-flow/
     debug('Setting up auth for passport');
     const userDao = app.context.dao.user;
 
     /**
-     * @param {Object} req
      * @param {string} username
      * @param {string} password
      * @param {Function} done
      */
-    async function loginVerify(req, username, password, done) {
+    async function loginVerify(username, password, done) {
         debug('Entered local strategy verification for login');
         // TODO: Check if user is already logged in and take appropriate action
         try {
-            const { user, valid, message } = await userDao.verifyCredentials(username.toLowerCase(), password);
+            const { user, valid, message } = await userDao.verifyCredentials(username, password);
             debug('Validation result from user dao : valid - %s, user %j, message %s', valid, user, message);
             if (valid === true) {
                 done(null, user);
             } else {
-                // TODO: Use req to flash message here
                 done(null, false, { message });
             }
         } catch (err) {
@@ -83,7 +82,7 @@ module.exports = function setupAuth(app, passport) {
     passport.use('local-login', new LocalStrategy({
         usernameField: 'email',
         passwordField: 'password',
-        passReqToCallback: true
+        passReqToCallback: false
     }, loginVerify));
 
     passport.use('local-register', new LocalStrategy({

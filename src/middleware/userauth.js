@@ -11,12 +11,15 @@ const authRegex = /^(?!(\/login|\/register)).*$/i;
 module.exports = async function userauth(ctx, next) {
     debug('Entered userauth middleware');
     if (authRegex.test(ctx.path)) {
-        debug('Path requires authentication');
+        debug('Path %s requires authentication', ctx.path);
         if (ctx.isAuthenticated()) {
             return await next();
         }
+        if (ctx.method === 'GET' && ctx.path !== '/logout') {
+            ctx.session.redirectUrl = ctx.url;
+        }
         return ctx.redirect('/login');
     }
-    debug('Path does not require authentication');
-    return await next();
+    debug('Path %s does not require authentication', ctx.path);
+    await next();
 };

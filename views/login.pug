@@ -1,21 +1,23 @@
 
 extends layout
 
-block content
+append content
 
-    #login.center-vertical
-        form#form-login.well(method='post')
+    #login
+        //- Keep this as part of the layout?
+        div(v-if='message')
+            p {{ message }}
+        form#form-login(method='post' @submit.prevent)
             h2 Hello!
             h6 Please Login To Your Account
-            input(type='hidden', name='_csrf', value=csrf)
-            .form-group
+            div
                 label Email
-                input.form-control(type='email', id='email', name='email', required, data-parsley-trigger='blur')
-            .form-group
+                input(type='email', id='email', name='email' v-model='loginForm.email')
+            div
                 label Password
-                input.form-control(type='password', id='password', name='password', required, data-parsley-trigger='blur')
-            .controls
-                button#btn-login(type='submit').btn.btn-primary.button-sign-in
+                input(type='password', id='password', name='password' v-model='loginForm.password')
+            div
+                button#btn-login(type='submit' @click='loginSubmit').button-sign-in
                     span.glyphicon.glyphicon-lock
                     | Sign In
             .clearfix
@@ -26,10 +28,8 @@ block content
             .clearfix
 
     include modals/alert
-    include modals/lost-password
 
 append scripts
-    script(src='/vendor/parsley.min.js')
+    scripts(src='//cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js')
+    script(src='/js/util/http_helper.js')
     script(src='/js/views/login.js')
-    script(src='/js/util/post_office.js')
-    script(src='/js/util/notifier.js')

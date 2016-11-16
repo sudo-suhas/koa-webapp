@@ -124,10 +124,10 @@ config.helmet = {
             // Whatever is defined here applies to all the other type unless you set them to 'none'
             defaultSrc: ["'none'"],
             // This is the policy for controlling the valid sources of JavaScript.
-            scriptSrc: ["'self'", 'ajax.googleapis.com', 'maxcdn.bootstrapcdn.com'],
+            scriptSrc: ["'self'", "'unsafe-eval'", 'cdnjs.cloudflare.com'],
             // This is the policy for controlling the valid sources of stylesheets.
             // Using the 'unsafe-inline' keyword to allows inline stylesheets
-            styleSrc: ["'self'", 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com'],
+            styleSrc: ["'self'", "'unsafe-inline'"],
             // This is the policy for controlling the valid sources of images.
             imgSrc: ["'self'", 'data:'],
             // limits the origins to which you can connect (via XHR, WebSockets, and EventSource)
@@ -136,7 +136,7 @@ config.helmet = {
             // 'none' will disallow plugins (objects, embeds, etc.)
             objectSrc: ["'none'"], // An empty array allows nothing through
             // specifies the origins that can serve web fonts.
-            fontSrc: ["'self'", 'https://themes.googleusercontent.com', 'maxcdn.bootstrapcdn.com'],
+            fontSrc: ["'self'", 'https://themes.googleusercontent.com'],
             // This is the policy for controlling the valid sources of HTML5 media types like <audio> or <video>.
             mediaSrc: [],
             // lists the URLs for workers and embedded frame contents

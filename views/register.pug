@@ -1,14 +1,37 @@
 
 extends layout
 
-//- http://www.the-art-of-web.com/javascript/validate-password/
-block content
+append content
 
-    include account
+    #login
+        //- Keep this as part of the layout?
+        div(v-if='message')
+            p {{ message }}
+        form#form-register(method='post' @submit.prevent)
+            h2 Register
+            div
+                label Name
+                input(type='text', id='name', name='name' v-model='registerForm.name')
+            div
+                label Email
+                input(type='email', id='email', name='email' v-model='registerForm.email')
+            div
+                label Password
+                input(type='password', id='password', name='password' v-model='registerForm.password')
+            div
+                button#btn-login(type='submit' @click='registerSubmit').button-sign-in
+                    span.glyphicon.glyphicon-lock
+                    | Register
+            .clearfix
+            hr
+            .btm-links
+                #login
+                    a(href='/login') Login
+            .clearfix
+
     include modals/alert
 
 append scripts
-    script(src='/vendor/jquery.form.min.js')
+    scripts(src='//cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js')
+    script(src='/js/util/http_helper.js')
     script(src='/js/views/register.js')
-    script(src='/js/controllers/registerController.js')
-    script(src='/js/form-validators/accountValidator.js')

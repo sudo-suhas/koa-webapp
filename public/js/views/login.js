@@ -1,26 +1,23 @@
-$(document).ready(function() {
-    // Setup parsley
-    $('#form-login').parsley();
-
-    var notifier = new Notifier();
-
-    function postCallback(err, data, status, jqXHR) {
-        console.log(err, data, status, jqXHR);
-        if (err || data.success === false) {
-            console.log('OH MAI GAD!!');
-            if (data.error === true) {
-                // Do something with field level error info.
-                // Use parsley? http://parsleyjs.org/doc/index.html
-            } else {
-                notifier.showMessage('Login Failed!', data.message);
+domReady(function() {
+    var vm = new Vue({
+        el: '#app',
+        data: window.vueData,
+        methods: {
+            loginSubmit: function loginSubmit() {
+                postData('/login', JSON.stringify(vm.loginForm),
+                    function resolve(resp) {
+                        var body = resp.json;
+                        vm.message = body.message;
+                        if (resp.ok === true) {
+                            window.location.href = body.response.redirectUrl;
+                        } else if (body.error === true) {
+                            // TODO: Process error details and update UI
+                        }
+                    },
+                    function reject(err) {
+                        console.log(err);
+                    });
             }
-            return;
         }
-        // Response should have the redirect url
-        window.location.href = data.response.redirectUrl;
-    }
-
-    // Setup form submit using ajax post
-    postOffice('btn-login', 'form-login', '/login', postCallback);
-
+    });
 });

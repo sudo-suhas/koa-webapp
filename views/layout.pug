@@ -9,13 +9,36 @@ html(lang='en')
         meta(name='author', content='Suhas Karanth')
         title= title
         block styles
-            link(rel='stylesheet', href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
             link(rel='stylesheet', href='/css/style.css')
-            link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.min.css')
     body
 
-        block content
+
+        //- We can hide the dom until we load it completely using vue. Show loading animation in the meantime
+        //- http://tobiasahlin.com/spinkit/
+        #loading-spinner.spinner
+            .rect1
+            .rect2
+            .rect3
+            .rect4
+            .rect5
+
+        #app.hidden
+            if enableVue === true
+                p#vue-data-text.hidden
+                    |!{vueData == null ? '{}' : JSON.stringify(vueData)}
+
+            block content
 
         block scripts
-            script(src='//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js')
-            script(src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+            //- To mimic $() calls on document load
+            script(src='/js/util/dom_ready.js')
+
+            if enableVue === true
+                //- Different versions of vue depending on environment
+                if env && env === 'development'
+                    script(src='//cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.js')
+                else
+                    script(src='//cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js')
+
+                //- Parse string in vue-data-text and load into global variable(window)
+                script(src='/js/util/load_vue_data.js')

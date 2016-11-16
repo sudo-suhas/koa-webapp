@@ -5,6 +5,17 @@ module.exports = async function loginView(ctx) {
     debug('Entered login view');
     await ctx.render('login', {
         title: 'Webapp Login',
-        csrf: ctx.csrf
+        env: ctx.env,
+        enableVue: true,
+        csrf: ctx.csrf,
+        // Required? Could make this part of login.js
+        vueData: {
+            message: '',
+            loginForm: {
+                _csrf: ctx.csrf,
+                email: '',
+                password: ''
+            }
+        }
     });
 };
